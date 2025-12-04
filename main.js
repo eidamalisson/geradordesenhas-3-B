@@ -1,92 +1,83 @@
-const passwordInput = document.getElementById("password");
-const copyBtn = document.getElementById("copyBtn");
-const generateBtn = document.getElementById("generateBtn");
+const numeroSenha = document.querySelector('.parametro-senha__texto');
+let tamanhoSenha = 12;
+numeroSenha.textContent = tamanhoSenha;
 
-const lengthSlider = document.getElementById("length");
-const lengthValue = document.getElementById("lengthValue");
+const botoes = document.querySelectorAll('.parametro-senha__botao');
 
-const upperCheck = document.getElementById("uppercase");
-const lowerCheck = document.getElementById("lowercase");
-const numberCheck = document.getElementById("numbers");
-const symbolCheck = document.getElementById("symbols");
+botoes[0].onclick = diminuiTamanho;
+botoes[1].onclick = aumentaTamanho;
 
-const strengthBar = document.getElementById("strengthBar");
-
-// Atualiza o número na tela ao mexer no slider
-lengthSlider.addEventListener("input", () => {
-    lengthValue.textContent = lengthSlider.value;
-});
-
-// Funções para gerar caracteres
-function getUppercase() {
-    return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+function diminuiTamanho() {
+    if (tamanhoSenha > 1) tamanhoSenha--;
+    numeroSenha.textContent = tamanhoSenha;
+    geraSenha();
 }
 
-function getLowercase() {
-    return String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+function aumentaTamanho() {
+    if (tamanhoSenha < 20) tamanhoSenha++;
+    numeroSenha.textContent = tamanhoSenha;
+    geraSenha();
 }
 
-function getNumber() {
-    return String.fromCharCode(Math.floor(Math.random() * 10) + 48);
-}
+const campoSenha = document.querySelector('#campo-senha');
 
-function getSymbol() {
-    const symbols = "!@#$%^&*()_+{}[]<>?/|";
-    return symbols[Math.floor(Math.random() * symbols.length)];
-}
+const chkMai = document.querySelector('input[name="maiusculo"]');
+const chkMin = document.querySelector('input[name="minusculo"]');
+const chkNum = document.querySelector('input[name="numero"]');
+const chkSim = document.querySelector('input[name="simbolo"]');
 
-// Gera senha
-function generatePassword() {
-    const length = lengthSlider.value;
+const barraForca = document.querySelector('.forca');
 
-    const options = [];
+const letrasMaiusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const letrasMinusculas = 'abcdefghijklmnopqrstuvwxyz';
+const numeros = '0123456789';
+const simbolos = '!@#$%&*?+-';
 
-    if (upperCheck.checked) options.push(getUppercase);
-    if (lowerCheck.checked) options.push(getLowercase);
-    if (numberCheck.checked) options.push(getNumber);
-    if (symbolCheck.checked) options.push(getSymbol);
+geraSenha();
 
-    if (options.length === 0) {
-        passwordInput.value = "";
-        return;
+function geraSenha() {
+    let caracteres = '';
+
+    if (chkMai.checked) caracteres += letrasMaiusculas;
+    if (chkMin.checked) caracteres += letrasMinusculas;
+    if (chkNum.checked) caracteres += numeros;
+    if (chkSim.checked) caracteres += simbolos;
+
+    // Se nada foi marcado, usar pelo menos maiúsculas
+    if (caracteres.length === 0) caracteres = letrasMaiusculas;
+
+    let senha = '';
+
+    for (let i = 0; i < tamanhoSenha; i++) {
+        let indice = Math.floor(Math.random() * caracteres.length);
+        senha += caracteres[indice];
     }
 
-    let password = "";
+    campoSenha.value = senha;
+    calcularForca();
+}
 
-    for (let i = 0; i < length; i++) {
-        const randomFunc = options[Math.floor(Math.random() * options.length)];
-        password += randomFunc();
+function calcularForca() {
+    let pontuacao = 0;
+
+    if (chkMai.checked) pontuacao++;
+    if (chkMin.checked) pontuacao++;
+    if (chkNum.checked) pontuacao++;
+    if (chkSim.checked) pontuacao++;
+    if (tamanhoSenha >= 12) pontuacao++;
+
+    barraForca.classList.remove('fraca', 'media', 'forte');
+
+    if (pontuacao <= 2) {
+        barraForca.classList.add('fraca');
+    } else if (pontuacao === 3) {
+        barraForca.classList.add('media');
+    } else {
+        barraForca.classList.add('forte');
     }
-
-    passwordInput.value = password;
-    updateStrength(password);
 }
 
-// Atualiza barra de força
-function updateStrength(password) {
-    let score = 0;
-
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-
-    const percent = (score / 6) * 100;
-    strengthBar.style.width = percent + "%";
-
-    if (percent < 40) strengthBar.style.background = "red";
-    else if (percent < 70) strengthBar.style.background = "yellow";
-    else strengthBar.style.background = "lime";
-}
-
-// Copiar senha
-copyBtn.addEventListener("click", () => {
-    if (passwordInput.value === "") return;
-
-    navigator.clipboard.writeText(passwordInput.value);
-    alert("Senha copiada!");
+// Atualizar senha quando clicar nos checkboxes
+document.querySelectorAll('.checkbox').forEach(c => {
+    c.onchange = geraSenha;
 });
-
-generateBtn.addEventListener("click", generatePassword);
