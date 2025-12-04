@@ -122,12 +122,14 @@ label {
     background-color: var(--fundo-senha);
     height: 30px;
     width: 100%;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 .forca {
     height: 30px;
-    position: relative;
-    bottom: 30px;
+    transition: 0.3s;
 }
 
 .fraca {
@@ -136,20 +138,19 @@ label {
 }
 
 .media {
-    background-color: #FAF408;
     width: 50%;
+    background-color: #FAF408;
 }
 
 .forte {
-    background-color: #00FF85;
     width: 100%;
+    background-color: #00FF85;
 }
 
 .parametro-senha-textos {
     display: flex;
     justify-content: space-between;
 }
-
 
 @media screen and (min-width: 768px) {
     .parametro-coluna__senha {
